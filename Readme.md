@@ -24,7 +24,7 @@ From MongoDB Atlas:
 Example:
 
 ```
-mongodb+srv://username:password@cluster0.f4vlkur.mongodb.net/?retryWrites=true&w=majority
+mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
 ```
 
 ### Step 2: Extract Cluster Details
@@ -41,15 +41,15 @@ db.adminCommand({ getCmdLineOpts: 1 });
 **Or use `nslookup` (if working):**
 
 ```bash
-nslookup -type=SRV _mongodb._tcp.cluster0.f4vlkur.mongodb.net
+nslookup -type=SRV _mongodb._tcp.cluster0.xxxxx.mongodb.net
 ```
 
 **Expected Output:**
 
 ```
-ac-8n8ctmy-shard-00-00.f4vlkur.mongodb.net:27017
-ac-8n8ctmy-shard-00-01.f4vlkur.mongodb.net:27017
-ac-8n8ctmy-shard-00-02.f4vlkur.mongodb.net:27017
+xx-xxxxxxx-shard-xx-xx.xxxxx.mongodb.net:27017
+xx-xxxxxxx-shard-xx-xx.xxxxx.mongodb.net:27017
+xx-xxxxxxx-shard-xx-xx.xxxxx.mongodb.net:27017
 Replica Set: atlas-drn1hb-shard-0
 ```
 
@@ -64,7 +64,7 @@ mongodb://username:password@host1:27017,host2:27017,host3:27017/?replicaSet=REPL
 Example:
 
 ```
-mongodb://username:password@ac-8n8ctmy-shard-00-00.f4vlkur.mongodb.net:27017,ac-8n8ctmy-shard-00-01.f4vlkur.mongodb.net:27017,ac-8n8ctmy-shard-00-02.f4vlkur.mongodb.net:27017/?replicaSet=atlas-drn1hb-shard-0&authSource=admin&ssl=true
+mongodb://username:password@xx-xxxxxxx-shard-xx-xx.xxxxx.mongodb.net:27017,xx-xxxxxxx-shard-xx-xx.xxxxx.mongodb.net:27017,axx-xxxxxxx-shard-xx-xx.xxxxx.mongodb.net:27017/?replicaSet=atlas-xxxxx-shard-0&authSource=admin&ssl=true
 ```
 
 ### Step 4: Update `.env`
