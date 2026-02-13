@@ -3,6 +3,25 @@ import { ApiError } from "../utils/ApiError.utils.js";
 import { ApiResponse } from "../utils/ApiResponse.utils.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.utils.js";
+import { use } from "react";
+
+const generateAccessAndRefreshTokens = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        const accessToken = await user.generateAccessToken();
+        const refreshToken = await user.generateRefreshToken();
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        return { accessToken, refreshToken };
+    } catch (error) {
+        throw new ApiError(
+            500,
+            "Something went wrong whille generating refresh and access token"
+        );
+    }
+};
 
 const registerUser = asyncHandler(async (req, res) => {
     // get user details from frontend
@@ -81,4 +100,60 @@ const registerUser = asyncHandler(async (req, res) => {
         );
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+    //req body -> data
+    // username or email
+    //find the user
+    // check password
+    // access and refresh token
+    // send cookies
+    const { email, username, password } = req.body;
+    if (!username && !email) {
+        throw new ApiError(400, "Username or email is required");
+    }
+    const user = await User.findOne({
+        $or: [{ username }, { email }],
+    });
+
+    if (!user) {
+        throw new ApiError(404, "User doesnot exist!");
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password);
+
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid user credentials!");
+    }
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+        user._id
+    );
+
+    const loggedInUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    );
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+        // these options make it only server side mutable and not from user side(frontend)
+    };
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(200, {
+                user: loggedInUser,
+                accessToken,
+                refreshToken,
+            }),
+            "User logged in successfully"
+        );
+});
+
+const logoutUser = asyncHandler(async(req,res) => {
+    
+})
+
+export { registerUser, loginUser };
