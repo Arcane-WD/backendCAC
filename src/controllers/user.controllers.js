@@ -3,7 +3,6 @@ import { ApiError } from "../utils/ApiError.utils.js";
 import { ApiResponse } from "../utils/ApiResponse.utils.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.utils.js";
-import { use } from "react";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -152,8 +151,23 @@ const loginUser = asyncHandler(async (req, res) => {
         );
 });
 
-const logoutUser = asyncHandler(async(req,res) => {
-    
-})
+const logoutUser = asyncHandler(async (req, res) => {
+    await User.findByIdAndUpdate(req.user._id, {
+        $set: {
+            refreshToken: undefined,
+        },
+    });
+    const options = {
+        httpOnly: true,
+        secure: true,
+        // these options make it only server side mutable and not from user side(frontend)
+    };
 
-export { registerUser, loginUser };
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User Logged out successfully"));
+});
+
+export { registerUser, loginUser, logoutUser };
